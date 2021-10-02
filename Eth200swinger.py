@@ -4,6 +4,7 @@ moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
 import web3
 from web3 import Web3
 import random
+from multiprocessing import Manager, Event, Process, Queue, Value, cpu_count
 N = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
 lmda = 0x5363ad4cc05c30e0a5261c028812645a122e22ea20816678df02967c1b23bd72
 lmda2 = 0xac9c52b33fa3cf1f5ad9e3fd77ed9ba4a880b9fc8ec739c2e0cfc810b51283ce
@@ -13,17 +14,21 @@ s729 = 0x64656D6F
 one = 0x00000000000001
 maxN = 0xFFFeFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
 minN =  0x0010000000000000000000000000000000000000000000000000000000000000
-eth_address_list = set([line.split('\n')[0].lower()for line in open("eth143m19Sept21.txt",'r')])#eth_addressR.txt
+eth_address_list = set([line.split('\n')[0].lower()for line in open("eth_addressR.txt",'r')])#eth143m19Sept21.txt
 totalAddresses = 0
 
 
 def checkPK(prefix,PK):
     global totalAddresses
     try:
-            acct = web3.eth.Account.privateKeyToAccount(PK)
-            eth_addr = acct.address.lower()
+        
+            #acct = web3.eth.Account.privateKeyToAccount(PK)
+            #eth_addr = acct.address.lower()
             #print(f' success, {prefix}, {PK} is vaild pk')
-            if eth_addr[:] in eth_address_list:
+            #print(web3.eth.Account.privateKeyToAccount(PK).address.lower()[:])      
+            if web3.eth.Account.privateKeyToAccount(PK).address.lower()[:] in eth_address_list:
+                acct = web3.eth.Account.privateKeyToAccount(PK)
+                eth_addr = acct.address.lower()
                 totalAddresses += 1
                 print(f'#Found Address\n')
                 print(eth_addr + '\n')
@@ -36,28 +41,44 @@ def checkPK(prefix,PK):
     except:
         #print(f' faild, {prefix}, {PK[1:]} is not vaild pk, {len(PK[1:])}')
         if PK[2:] < hex(one):
+            #print(f'{prefix} hex smaller than one')
             checkPK(prefix,hex(int(os.urandom(32).hex(),16))[2:].zfill(64))
         else:
             checkPK(prefix,PK[1:])
+            #print(f'{prefix} hex bigger than range')
         pass
-
-
+"""
+from working script
+['f3d', '3d7', 'd70', '70b', '0b9', 'b9f', '9fb', 'fb2', 'b27', '270', '70f', '0fa', 'fa9', 'a9a', '9ad', 'ad8', 'd8f', '8f3', 'f36', '360', '607', '07d', '7df', 'dfd', 'fd6', 'd6f', '6f7', 'f77',
+'771', '710', '106', '06c', '6c3', 'c35', '354', '544', '444', '440', '407', '073', '736', '366', '66d', '6df', 'dfe', 'fe9','e9a', '9a7', 'a73', '730', '304', '049', '49f', '9f7', 'f78',
+ '787', '87e', '7ea', 'eaa', 'aa1', 'a12', '124']
+"""
+"""
+['f3d', '3d7', 'd70', '70b', '0b9', 'b9f', '9fb', 'fb2', 'b27', '270', '70f', '0fa', 'fa9', 'a9a', '9ad', 'ad8', 'd8f', '8f3', 'f36', '360', '607', '07d', '7df', 'dfd', 'fd6', 'd6f', '6f7', 'f77',
+'771', '710', '106', '06c', '6c3', 'c35', '354', '544', '445', '450', '50', '073', '736', '366', '66d', '6df', 'dfe', 'fe9', 'e9a', '9a7', 'a73', '730', '304', '049', '49f', '9f7', 'f78',
+'787', '87e', '7ea', 'eaa', 'aa1', 'a12', '124']
+"""
 def extractHex(anyhex):
+    ##print(anyhex)
     size = str(anyhex[2:])
     #print(len(size))
     counter = 2
     i = len(size)
+    ##print(i)
     #print(anyhex)
     #print(i)
     #item = i - (i - counter)
     a = [anyhex[i - (i - counter):][:3]]
     while counter < len(size)-1:
         counter += 1
+        ##print(counter)
         a.append(anyhex[i - (i - counter):][:3])
-    #print(a)
+        ##print(a)
+    ##print(a)
     return a
 
 def skipdups(prefixes):
+    #print('skip')
     sizeOfList = len(prefixes)
     #print(sizeOfList)
     counter = 0
@@ -66,6 +87,14 @@ def skipdups(prefixes):
         a = i[0]
         b = i[1]
         c = i[2]
+        """
+        try:
+            c = i[2]
+        except:
+           print(prefixes)
+           print(i)
+           i=input()
+        """
 #        print(c)
         if a != b:
             Do='Nothing'
@@ -79,38 +108,54 @@ def skipdups(prefixes):
                 d = hex(int(prefixes[counter-1][0],16)+1)[2:]
                 prefixes[counter-1] = d+a+b
                 if counter > 2:
-                    prefixes[counter-2] = prefixes[counter-2][0]+prefixes[counter-1][0] + prefixes[counter-1][1]
+                    ##prefixes[counter-2] = prefixes[counter-2][0]+prefixes[counter-1][0] + prefixes[counter-1][1]
+                    prefixes[counter-2] = prefixes[counter-2][0]+prefixes[counter-1][0:2]
                     if prefixes[counter-2][0] != prefixes[counter-2][1]:
-                        prefixes[counter-3] = prefixes[counter-3][0]+prefixes[counter-3][1] + prefixes[counter-2][1]
+                        ##prefixes[counter-3] = prefixes[counter-3][0]+prefixes[counter-3][1] + prefixes[counter-2][1]
+                        prefixes[counter-3] = prefixes[counter-3][0:2]+ prefixes[counter-2][1]
+                        #print(prefixes[counter-3][0]+prefixes[counter-3][1] + prefixes[counter-2][1])
+                        #print(prefixes[counter-3][0:2]+ prefixes[counter-2][1])
                     else:
                         if prefixes[counter-3][0] == prefixes[counter-2][0]:
                             d = hex(int(prefixes[counter-3][2],16)+2)[2:]
                             if counter > 3 and prefixes[counter-3][0] == 'f':
                                 prefixes[counter-3] = hex(int(prefixes[counter-3][0],16)-15)[2:] + hex(int(prefixes[counter-3][1],16)-15)[2:] + hex(int(prefixes[counter-3][2],16)-13)[2:]
-                                prefixes[counter-2] = prefixes[counter-3][1] + prefixes[counter-3][2] + prefixes[counter-2][2]
-                                prefixes[counter-1] = prefixes[counter-2][1] + prefixes[counter-2][2] + prefixes[counter-1][2]
-                                prefixes[counter-4] = hex(int(prefixes[counter-4][0],16)+1)[2:] +  prefixes[counter-3][0] + prefixes[counter-3][1]
-                                prefixes[counter-5] = prefixes[counter-5][0] + prefixes[counter-4][0] + prefixes[counter-4][1]
-                                prefixes[counter-6] = prefixes[counter-6][0] + prefixes[counter-5][0] + prefixes[counter-5][1]
+                                ##prefixes[counter-2] = prefixes[counter-3][1] + prefixes[counter-3][2] + prefixes[counter-2][2]
+                                prefixes[counter-2] = prefixes[counter-3][1:2] + prefixes[counter-2][2]
+                                ##prefixes[counter-1] = prefixes[counter-2][1] + prefixes[counter-2][2] + prefixes[counter-1][2]
+                                prefixes[counter-1] = prefixes[counter-2][1:2] + prefixes[counter-1][2]
+                                ##prefixes[counter-4] = hex(int(prefixes[counter-4][0],16)+1)[2:] +  prefixes[counter-3][0] + prefixes[counter-3][1]
+                                prefixes[counter-4] = hex(int(prefixes[counter-4][0],16)+1)[2:] +  prefixes[counter-3][0:2]
+                                ##prefixes[counter-5] = prefixes[counter-5][0] + prefixes[counter-4][0] + prefixes[counter-4][1]
+                                prefixes[counter-5] = prefixes[counter-5][0] + prefixes[counter-4][0:2]
+                                ##prefixes[counter-6] = prefixes[counter-6][0] + prefixes[counter-5][0] + prefixes[counter-5][1]
+                                prefixes[counter-6] = prefixes[counter-6][0] + prefixes[counter-5][0:2]
                                 #print(prefixes[counter-6])
                                 #print(prefixes[counter-5])
                                 #print(prefixes[counter-4])
                                 #print(prefixes[counter-3])
 #                            print(f'd = {d}')
                             else:
-                                prefixes[counter-3] = prefixes[counter-3][0] + prefixes[counter-3][1]+d
+                                ##prefixes[counter-3] = prefixes[counter-3][0] + prefixes[counter-3][1]+d
+                                prefixes[counter-3] = prefixes[counter-3][0:2]+d
                                 prefixes[counter-2] = prefixes[counter-2][0] + prefixes[counter-3][2] + prefixes[counter-2][2]
-                                prefixes[counter-1] = prefixes[counter-2][1] + prefixes[counter-1][1] + prefixes[counter-1][2]
+                                ##prefixes[counter-1] = prefixes[counter-2][1] + prefixes[counter-1][1] + prefixes[counter-1][2]
+                                prefixes[counter-1] = prefixes[counter-2][1] + prefixes[counter-1][1:2]
                         else:
-                            d = hex(int(prefixes[counter-3][2],16)+1)[2:]
-                            prefixes[counter-3] = prefixes[counter-3][0] + prefixes[counter-3][1]+d
+                            #d = hex(int(prefixes[counter-3][2],16)+1)[2:]
+                            ##prefixes[counter-3] = prefixes[counter-3][0] + prefixes[counter-3][1]+d
+                            ##prefixes[counter-3] = prefixes[counter-3][0:2] + d
+                            prefixes[counter-3] = prefixes[counter-3][0:2] + hex(int(prefixes[counter-3][2],16)+1)[2:]
                             prefixes[counter-2] = prefixes[counter-2][0] + prefixes[counter-3][2] + prefixes[counter-2][2]
-                            prefixes[counter-1] = prefixes[counter-2][1] + prefixes[counter-1][1] + prefixes[counter-1][2]
+                            ##prefixes[counter-1] = prefixes[counter-2][1] + prefixes[counter-1][1] + prefixes[counter-1][2]
+                            prefixes[counter-1] = prefixes[counter-2][1] + prefixes[counter-1][1:2]
             else:
                 c = hex(int(c,16)+1)[2:]
             if counter < (sizeOfList-2):
                 prefixes[counter+1] = prefixes[counter+1][0]+c+prefixes[counter+1][2]
                 prefixes[counter+2] = c+prefixes[counter+2][1]+prefixes[counter+2][2]
+                ##prefixes[counter+2] = c+prefixes[counter+2][1:2]
+                """ this strangely makes an error when doing the short version!!!"""
             elif counter ==(sizeOfList-2):
                 prefixes[counter+1] = prefixes[counter+1][0]+c+prefixes[counter+1][2]
             #print('modified to '+a+b+c
@@ -134,14 +179,20 @@ start = 0x111
 
 #privatekeyStart = 0x3a2256cb72a1fb4b72fdf7a933dddde3df9c2bc9a26d8e199b508dfb544990000
 privatekeyStart = 0x000000000000111
+##privatekeyStart = 0xf3d70b9fb270fa9ad8f3607dfd6f77106c3544407366dfe9a73049f787eaa124
 add1hex = '-251084069415467230553431576928306656644094217778561380515840'
 def main():
     global privatekeyStart,add1hex,reverse
     counter = 0
     print('Starting Script...')
+    counterT = Value('L')
+    st = time.time()
     while True:
+        counterT.value += 200
         if reverse == 0:
             prefixes = extractHex(hex(privatekeyStart))
+            ##print('before calling skipdups')
+            ##print(prefixes)
             privatekeyStart = int(skipdups(prefixes),16)
             #print(f'key after skip:{hex(privatekeyStart)}')
         counter += 200
@@ -272,6 +323,7 @@ def main():
         checkPK(98,hex(int(N/16)*5-pvkrr)[2:].zfill(64))
         checkPK(99,hex(int(N/16)*6-pvkrr)[2:].zfill(64))
         checkPK(100,hex(int(N/16)*7-pvkrr)[2:].zfill(64))
+        #"""
         checkPK(101,hex(int(N/16)*8-pvkrr)[2:].zfill(64))
         checkPK(102,hex(int(N/16)*9-pvkrr)[2:].zfill(64))
         checkPK(103,hex(int(N/16)*10-pvkrr)[2:].zfill(64))
@@ -281,9 +333,9 @@ def main():
         checkPK(107,hex(int(N/16)*14-pvkrr)[2:].zfill(64))
         checkPK(108,hex(int(N/16)*15-pvkrr)[2:].zfill(64))
         #108
-        """-----------------------------------------------------------------------------------------------------------"""
-        """-----------------------------------------------------------------------------------------------------------"""
-        """from 109 to 138, format : hex(int(N/16)*x-y-z"""
+        #""""-----------------------------------------------------------------------------------------------------------""""
+        #""""-----------------------------------------------------------------------------------------------------------""""
+        #""""from 109 to 138, format : hex(int(N/16)*x-y-z""""
         checkPK(109,hex(int(N/16)*1-pvkr-pvk)[2:].zfill(64))
         checkPK(110,hex(int(N/16)*2-pvkr-pvk)[2:].zfill(64))
         checkPK(111,hex(int(N/16)*3-pvkr-pvk)[2:].zfill(64))
@@ -316,9 +368,9 @@ def main():
         checkPK(137,hex(int(N/16)*14-pvkr-pvk1)[2:].zfill(64))
         checkPK(138,hex(int(N/16)*15-pvkr-pvk1)[2:].zfill(64))
         #138
-        """-----------------------------------------------------------------------------------------------------------"""
-        """-----------------------------------------------------------------------------------------------------------"""
-        """from 139 to 168, format : hex(int(N/16)*x-y-z+g"""
+        #""""-----------------------------------------------------------------------------------------------------------""""
+        #""""-----------------------------------------------------------------------------------------------------------""""
+        #""""from 139 to 168, format : hex(int(N/16)*x-y-z+g""""
         checkPK(139,hex(int(N/16)*1-pvkr-pvk+pvkrr)[2:].zfill(64))
         checkPK(140,hex(int(N/16)*2-pvkr-pvk+pvkrr)[2:].zfill(64))
         checkPK(141,hex(int(N/16)*3-pvkr-pvk+pvkrr)[2:].zfill(64))
@@ -351,8 +403,8 @@ def main():
         checkPK(167,hex(int(N/16)*14-pvkr-pvk1+pvkrr)[2:].zfill(64))
         checkPK(168,hex(int(N/16)*15-pvkr-pvk1+pvkrr)[2:].zfill(64))
         #168
-        """-----------------------------------------------------------------------------------------------------------"""
-        """-----------------------------------------------------------------------------------------------------------"""
+        #""""-----------------------------------------------------------------------------------------------------------""""
+        #""""-----------------------------------------------------------------------------------------------------------""""
         checkPK(169,hex(N-pvkr-s1-pvk)[2:].zfill(64))
         checkPK(170,hex(N-pvkr-s2-pvk)[2:].zfill(64))
         checkPK(171,hex(N-pvkr-s729-pvk)[2:].zfill(64))
@@ -387,11 +439,13 @@ def main():
         checkPK(199,hex(int(pvk1%pvk))[2:].zfill(64))
         checkPK(200,hex(int(pvk%pvkr+pvk1%pvkrr))[2:].zfill(64))
         #200
+        #"""
         """-----------------------------------------------------------------------------------------------------------"""
         """-----------------------------------------------------------------------------------------------------------"""
         """-----------------------------------------------------------------------------------------------------------"""
         if counter % 100000 ==0:
             add1hex = str(int(add1hex)*random.randint(3, 333))
+            print('[ Speed : {1:.2f} Keys/s ]'.format(counterT.value, counterT.value/(time.time() - st)))
             print(f'  total scanned {counter}, add1hex = {add1hex}, total found {totalAddresses}, digits {len(hex(pvk)[2:])}, current pvk = '+
                   f'\n\t\t\t{hex(pvk)[2:].zfill(64)}\n\t\t\t{hex(pvk1)[2:].zfill(64)}\n\t\t\t{hex(pvkr)[2:].zfill(64)}\n\t\t\t{hex(pvkrr)[2:].zfill(64)}\n')
         if  privatekeyStart> maxN:
