@@ -6,3 +6,5 @@ offline half-random brute force script for Ethereum private keys, goes from the 
 # Important Note:
 * The script currently is too slow, no threading nor multi-processing
 * I appreciate any help..
+# Disclaimer:
+* I don't provide this script for malicious intentions and can't be held accountable for anything done by anyone who uses this script.
