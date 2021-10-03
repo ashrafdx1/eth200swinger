@@ -3,7 +3,23 @@ offline half-random brute force script for Ethereum private keys, goes from the 
 # Required:
 -web3
 -random
+- its offline, so you need to provide your list of addresses as eth_list.txt
+## SkipDups:
+- shortly, skipdups func skips three duplications whenever it happens in the private key hex..
+- example:
+- input:  0x1112232fff######################################################
+- output: 0x1122334001######################################################
+- I added no skipdups edition, for those who doesn't like it but like other ideas 
+## Swinging:
+- it just means it goes from start of range to end of range and vice versa
+## 200:
+- four basis keys that generates in total 200 keys each time
+- 2 base keys is random
+- 1 is somewhat sequential
+- 1 is a mix
 # Important Note:
+* The goal of this script is to test unusual ideas, not for anything else..
+* This is not for causual users who just needs a script to run from time to time, some of the ideas applied here differ from other scripts, also this is not really a "User-friendly" aka no input taken from user.. you would need some python knowledge to edit it its parameters 
 * The script currently is too slow, no threading nor multi-processing
 * I appreciate any help..
 # Disclaimer:
