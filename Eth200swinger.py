@@ -189,7 +189,6 @@ privatekeyStart = 0x000000000000111
 add1hex = '-251084069415467230553431576928306656644094217778561380515840'
 def main():
     global privatekeyStart,add1hex,reverse
-    counter = 0
     print('Starting Script...')
     counterT = Value('L')
     st = time.time()
@@ -201,7 +200,6 @@ def main():
             ##print(prefixes)
             privatekeyStart = int(skipdups(prefixes),16)
             #print(f'key after skip:{hex(privatekeyStart)}')
-        counter += 200
         #i=input('enter anything')
         #privateKey = os.urandom(32)
         pvkr = int(os.urandom(32).hex(),16)
@@ -449,15 +447,15 @@ def main():
         """-----------------------------------------------------------------------------------------------------------"""
         """-----------------------------------------------------------------------------------------------------------"""
         """-----------------------------------------------------------------------------------------------------------"""
-        if counter % 100000 ==0:
+        if counterT.value % 100000 ==0:
             add1hex = str(int(add1hex)*random.randint(3, 333))
             print('[ Speed : {1:.2f} Keys/s ]'.format(counterT.value, counterT.value/(time.time() - st)))
-            print(f'  total scanned {counter}, add1hex = {add1hex}, total found {totalAddresses}, digits {len(hex(pvk)[2:])}, current pvk = '+
+            print(f'  total scanned {counterT.value}, add1hex = {add1hex}, total found {totalAddresses}, digits {len(hex(pvk)[2:])}, current pvk = '+
                   f'\n\t\t\t{hex(pvk)[2:].zfill(64)}\n\t\t\t{hex(pvk1)[2:].zfill(64)}\n\t\t\t{hex(pvkr)[2:].zfill(64)}\n\t\t\t{hex(pvkrr)[2:].zfill(64)}\n')
         if  privatekeyStart> maxN:
             add1hex = str(-1*random.randint(1, 1000))
             privatekeyStart = int(os.urandom(32).hex(),16)
-            print(f'pks bigger than maxN, add1hex = {add1hex},reversing, key = {hex(privatekeyStart)}')
+            print(f'pk bigger than maxN, add1hex = {add1hex},reversing, key = {hex(privatekeyStart)}')
             reverse = 1
             #i=input('enter anything')
             continue
@@ -466,7 +464,7 @@ def main():
         if  privatekeyStart< minN:
             add1hex = str(random.randint(1, 1000))
             privatekeyStart = int(os.urandom(32).hex(),16)
-            print(f'pks smaller than start, add1hex = {add1hex},no reverse, key = {hex(privatekeyStart)}')
+            print(f'pk smaller than start, add1hex = {add1hex},no reverse, key = {hex(privatekeyStart)}')
             reverse = 0
             #i=input('enter anything')
             continue
