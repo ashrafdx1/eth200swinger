@@ -1,3 +1,9 @@
+"""
+v 1.00 skipdups edition
+composer of these lines: @ashrafdx1
+other authors: too many..literally!!
+"""
+
 import time
 import os
 moment=time.strftime("%Y-%b-%d__%H_%M_%S",time.localtime())
@@ -14,7 +20,7 @@ s729 = 0x64656D6F
 one = 0x00000000000001
 maxN = 0xFFFeFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
 minN =  0x0010000000000000000000000000000000000000000000000000000000000000
-eth_address_list = set([line.split('\n')[0].lower()for line in open("eth_addressR.txt",'r')])#eth143m19Sept21.txt
+eth_address_list = set([line.split('\n')[0].lower()for line in open("eth_list.txt",'r')])#eth_addressR.txt
 totalAddresses = 0
 
 
@@ -34,7 +40,7 @@ def checkPK(prefix,PK):
                 print(eth_addr + '\n')
                 print(PK + '\n')
                 print(f'total addresses found = {totalAddresses}')
-                with open(f'ETH_found_143m_200KEYs.txt','a') as fw:
+                with open(f'ETH_found_200KEYs.txt','a') as fw:
                     fw.write(eth_addr + '\n')
                     fw.write(PK + '\n')
                 return
@@ -108,11 +114,11 @@ def skipdups(prefixes):
                 d = hex(int(prefixes[counter-1][0],16)+1)[2:]
                 prefixes[counter-1] = d+a+b
                 if counter > 2:
-                    ##prefixes[counter-2] = prefixes[counter-2][0]+prefixes[counter-1][0] + prefixes[counter-1][1]
-                    prefixes[counter-2] = prefixes[counter-2][0]+prefixes[counter-1][0:2]
+                    prefixes[counter-2] = prefixes[counter-2][0]+prefixes[counter-1][0] + prefixes[counter-1][1]
+                    ##prefixes[counter-2] = prefixes[counter-2][0]+prefixes[counter-1][0:2]
                     if prefixes[counter-2][0] != prefixes[counter-2][1]:
-                        ##prefixes[counter-3] = prefixes[counter-3][0]+prefixes[counter-3][1] + prefixes[counter-2][1]
-                        prefixes[counter-3] = prefixes[counter-3][0:2]+ prefixes[counter-2][1]
+                        prefixes[counter-3] = prefixes[counter-3][0]+prefixes[counter-3][1] + prefixes[counter-2][1]
+                        ##prefixes[counter-3] = prefixes[counter-3][0:2]+ prefixes[counter-2][1]
                         #print(prefixes[counter-3][0]+prefixes[counter-3][1] + prefixes[counter-2][1])
                         #print(prefixes[counter-3][0:2]+ prefixes[counter-2][1])
                     else:
@@ -120,35 +126,35 @@ def skipdups(prefixes):
                             d = hex(int(prefixes[counter-3][2],16)+2)[2:]
                             if counter > 3 and prefixes[counter-3][0] == 'f':
                                 prefixes[counter-3] = hex(int(prefixes[counter-3][0],16)-15)[2:] + hex(int(prefixes[counter-3][1],16)-15)[2:] + hex(int(prefixes[counter-3][2],16)-13)[2:]
-                                ##prefixes[counter-2] = prefixes[counter-3][1] + prefixes[counter-3][2] + prefixes[counter-2][2]
-                                prefixes[counter-2] = prefixes[counter-3][1:2] + prefixes[counter-2][2]
-                                ##prefixes[counter-1] = prefixes[counter-2][1] + prefixes[counter-2][2] + prefixes[counter-1][2]
-                                prefixes[counter-1] = prefixes[counter-2][1:2] + prefixes[counter-1][2]
-                                ##prefixes[counter-4] = hex(int(prefixes[counter-4][0],16)+1)[2:] +  prefixes[counter-3][0] + prefixes[counter-3][1]
-                                prefixes[counter-4] = hex(int(prefixes[counter-4][0],16)+1)[2:] +  prefixes[counter-3][0:2]
-                                ##prefixes[counter-5] = prefixes[counter-5][0] + prefixes[counter-4][0] + prefixes[counter-4][1]
-                                prefixes[counter-5] = prefixes[counter-5][0] + prefixes[counter-4][0:2]
-                                ##prefixes[counter-6] = prefixes[counter-6][0] + prefixes[counter-5][0] + prefixes[counter-5][1]
-                                prefixes[counter-6] = prefixes[counter-6][0] + prefixes[counter-5][0:2]
+                                prefixes[counter-2] = prefixes[counter-3][1] + prefixes[counter-3][2] + prefixes[counter-2][2]
+                                ##prefixes[counter-2] = prefixes[counter-3][1:2] + prefixes[counter-2][2]
+                                prefixes[counter-1] = prefixes[counter-2][1] + prefixes[counter-2][2] + prefixes[counter-1][2]
+                                ##prefixes[counter-1] = prefixes[counter-2][1:2] + prefixes[counter-1][2]
+                                prefixes[counter-4] = hex(int(prefixes[counter-4][0],16)+1)[2:] +  prefixes[counter-3][0] + prefixes[counter-3][1]
+                                ##prefixes[counter-4] = hex(int(prefixes[counter-4][0],16)+1)[2:] +  prefixes[counter-3][0:2]
+                                prefixes[counter-5] = prefixes[counter-5][0] + prefixes[counter-4][0] + prefixes[counter-4][1]
+                                ##prefixes[counter-5] = prefixes[counter-5][0] + prefixes[counter-4][0:2]
+                                prefixes[counter-6] = prefixes[counter-6][0] + prefixes[counter-5][0] + prefixes[counter-5][1]
+                                ##prefixes[counter-6] = prefixes[counter-6][0] + prefixes[counter-5][0:2]
                                 #print(prefixes[counter-6])
                                 #print(prefixes[counter-5])
                                 #print(prefixes[counter-4])
                                 #print(prefixes[counter-3])
 #                            print(f'd = {d}')
                             else:
-                                ##prefixes[counter-3] = prefixes[counter-3][0] + prefixes[counter-3][1]+d
-                                prefixes[counter-3] = prefixes[counter-3][0:2]+d
+                                prefixes[counter-3] = prefixes[counter-3][0] + prefixes[counter-3][1]+d
+                                ##prefixes[counter-3] = prefixes[counter-3][0:2]+d
                                 prefixes[counter-2] = prefixes[counter-2][0] + prefixes[counter-3][2] + prefixes[counter-2][2]
-                                ##prefixes[counter-1] = prefixes[counter-2][1] + prefixes[counter-1][1] + prefixes[counter-1][2]
-                                prefixes[counter-1] = prefixes[counter-2][1] + prefixes[counter-1][1:2]
+                                prefixes[counter-1] = prefixes[counter-2][1] + prefixes[counter-1][1] + prefixes[counter-1][2]
+                                ##prefixes[counter-1] = prefixes[counter-2][1] + prefixes[counter-1][1:2]
                         else:
-                            #d = hex(int(prefixes[counter-3][2],16)+1)[2:]
-                            ##prefixes[counter-3] = prefixes[counter-3][0] + prefixes[counter-3][1]+d
+                            d = hex(int(prefixes[counter-3][2],16)+1)[2:]
+                            prefixes[counter-3] = prefixes[counter-3][0] + prefixes[counter-3][1]+d
                             ##prefixes[counter-3] = prefixes[counter-3][0:2] + d
-                            prefixes[counter-3] = prefixes[counter-3][0:2] + hex(int(prefixes[counter-3][2],16)+1)[2:]
+                            ##prefixes[counter-3] = prefixes[counter-3][0:2] + hex(int(prefixes[counter-3][2],16)+1)[2:]
                             prefixes[counter-2] = prefixes[counter-2][0] + prefixes[counter-3][2] + prefixes[counter-2][2]
-                            ##prefixes[counter-1] = prefixes[counter-2][1] + prefixes[counter-1][1] + prefixes[counter-1][2]
-                            prefixes[counter-1] = prefixes[counter-2][1] + prefixes[counter-1][1:2]
+                            prefixes[counter-1] = prefixes[counter-2][1] + prefixes[counter-1][1] + prefixes[counter-1][2]
+                            ##prefixes[counter-1] = prefixes[counter-2][1] + prefixes[counter-1][1:2]
             else:
                 c = hex(int(c,16)+1)[2:]
             if counter < (sizeOfList-2):
