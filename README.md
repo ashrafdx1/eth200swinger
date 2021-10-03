@@ -7,8 +7,8 @@ offline half-random brute force script for Ethereum private keys, goes from the 
 ## SkipDups:
 - shortly, skipdups func skips three duplications whenever it happens in the private key hex..
 - example:
-- input:\t0x1112232fff######################################################
-- output: \t0x1122334001######################################################
+- input:0x1112232fff######################################################
+- output: 0x1122334001######################################################
 - I added no skipdups edition, for those who doesn't like it but like other ideas 
 ## Swinging:
 - it just means it goes from start of range to end of range and vice versa
