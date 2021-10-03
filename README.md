@@ -19,7 +19,7 @@ offline half-random brute force script for Ethereum private keys, goes from the 
 - 1 is a mix
 # Important Note:
 * The goal of this script is to test unusual ideas, not for anything else..
-* This is not for causual users who just needs a script to run from time to time, some of the ideas applied here differ from other scripts, also this is not really a "User-friendly" aka no input taken from user.. you would need some python knowledge to edit it its parameters 
+* This is not for casual users who just needs a script to run from time to time, some of the ideas applied here differ from other scripts, also this is not really a "User-friendly" aka no input taken from user.. you would need some python knowledge to edit it its parameters 
 * The script currently is too slow, no threading nor multi-processing
 * I appreciate any help..
 # Disclaimer:
