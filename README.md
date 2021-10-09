@@ -17,6 +17,12 @@ offline half-random brute force script for Ethereum private keys, goes from the 
 - 2 base keys is random
 - 1 is somewhat sequential
 - 1 is a mix
+## 128 keys version:
+- three basis keys that generates in total 128 keys each time
+- 1 base keys is random
+- 1 is somewhat sequential
+- 1 is a mix
+- should be faster
 # Important Note:
 * The goal of this script is to test unusual ideas, not for anything else..
 * This is by no mean a bug-free script,expect an error anytime.. so unless you can fix it, post an issue..
